@@ -1,0 +1,7 @@
+{
+  "name": "maintenance-tracker",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
