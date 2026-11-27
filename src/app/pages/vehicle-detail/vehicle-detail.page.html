@@ -18,19 +18,21 @@
     </div>
 
     <!-- Hero Telemetry Gauges -->
-    <div class="telemetry-grid">
-      <div class="gauge-card" (click)="openModal('odo')">
-        <span class="gauge-label">ODOMETER</span>
-        <div class="gauge-value tabular-nums">{{ bike.currentOdometer }} <small>km</small></div>
-        <span class="gauge-action">+ Update Odo</span>
-      </div>
+   <div class="gauge-card" (click)="openModal('odo')">
+        <div class="gauge-header-row">
+          <span class="gauge-label">ODOMETER</span>
+          <span class="edit-hint">Edit</span>
+        </div>
+        <div class="gauge-value tabular-nums">{{ bike.currentOdometer.toLocaleString() }} <small>km</small></div>
 
-      <div class="gauge-card">
-        <span class="gauge-label">EFFICIENCY</span>
-        <div class="gauge-value tabular-nums">{{ logbook.latestKmPerLiter() ?? '--' }} <small>km/L</small></div>
-        <span class="gauge-sub">Last refill</span>
+        <div class="quick-odo-pills">
+          <button type="button" (click)="quickAddOdo(1, $event)">+1</button>
+          <button type="button" (click)="quickAddOdo(5, $event)">+5</button>
+          <button type="button" (click)="quickAddOdo(10, $event)">+10</button>
+          <button type="button" (click)="quickAddOdo(25, $event)">+25</button>
+          <button type="button" (click)="quickAddOdo(50, $event)">+50</button>
+        </div>
       </div>
-    </div>
 
     <!-- Quick Action Buttons -->
     <div class="quick-actions">

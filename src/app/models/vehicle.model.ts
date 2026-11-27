@@ -9,6 +9,7 @@ export interface Motorcycle {
   transmissionType: 'manual' | 'automatic';
   currentOdometer: number;
   vehicleType: 'motorcycle' | 'car';
+  lastOdometerUpdated?: string;
 }
 
 export interface MaintenanceTask {

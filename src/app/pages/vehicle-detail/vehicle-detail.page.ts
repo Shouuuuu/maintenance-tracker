@@ -173,4 +173,12 @@ export class VehicleDetailPage implements OnInit {
     this.partNotes = '';
     this.closeModal();
   }
+
+quickAddOdo(deltaKm: number, event: Event) {
+    event.stopPropagation();
+    const bike = this.logbook.activeVehicle();
+    if (!bike) return;
+    this.logbook.incrementOdometer(bike.id, deltaKm);
+  }
+
 }

@@ -257,3 +257,39 @@
   border: 1px solid #2a303c;
   border-radius: 12px;
 }
+
+.gauge-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .edit-hint {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #e11d48;
+  }
+}
+
+.quick-odo-pills {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+
+  button {
+    flex: 1;
+    min-width: 0;
+    background: #232834;
+    border: 1px solid #323949;
+    border-radius: 7px;
+    padding: 5px 0;
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: #f8fafc;
+    cursor: pointer;
+
+    &:active {
+      background: #e11d48;
+      border-color: #e11d48;
+    }
+  }
+}
