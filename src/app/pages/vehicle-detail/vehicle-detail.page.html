@@ -25,7 +25,7 @@
         </div>
         <div class="gauge-value tabular-nums">{{ bike.currentOdometer.toLocaleString() }} <small>km</small></div>
 
-        <div class="quick-odo-pills">
+       <div class="quick-odo-pills">
           <button type="button" (click)="quickAddOdo(1, $event)">+1</button>
           <button type="button" (click)="quickAddOdo(5, $event)">+5</button>
           <button type="button" (click)="quickAddOdo(10, $event)">+10</button>
@@ -57,8 +57,8 @@
     <!-- 1. PMS TASKS VIEW -->
     @if (activeSection === 'pms') {
       <div class="list-stack">
-        @for (task of logbook.activeTasks(); track task.id) {
-          <div class="data-card" [class]="logbook.getTaskStatus(task)">
+       @for (task of logbook.activeTasks(); track task.id) {
+          <div class="data-card pms-card" [class]="logbook.getTaskStatus(task)">
             <div class="data-main">
               <div class="title-row">
                 <h3>{{ task.name }}</h3>
@@ -67,17 +67,22 @@
                 </span>
               </div>
               <p class="meta-line">
-                Every {{ task.intervalKm }} km • Last done at {{ task.lastDoneOdometer }} km
+                Every {{ task.intervalKm.toLocaleString() }} km • Last done at {{ task.lastDoneOdometer.toLocaleString() }} km
               </p>
               <p class="remaining-line tabular-nums">
                 @if (logbook.getRemainingKm(task) > 0) {
-                  {{ logbook.getRemainingKm(task) }} km remaining
+                  {{ logbook.getRemainingKm(task).toLocaleString() }} km remaining
                 } @else {
-                  Overdue by {{ -logbook.getRemainingKm(task) }} km
+                  Overdue by {{ (-logbook.getRemainingKm(task)).toLocaleString() }} km
                 }
               </p>
+
+             <div class="task-actions-row">
+                <button type="button" class="done-btn" (click)="markTaskDone(task)">Done</button>
+                <button type="button" class="done-btn" (click)="openEditTaskModal(task)">Edit</button>
+                <button type="button" class="done-btn remove" (click)="confirmDeleteTask(task)">Remove</button>
+              </div>
             </div>
-            <button class="done-btn" (click)="markTaskDone(task)">Done</button>
           </div>
         } @empty {
           <div class="empty-box">No PMS schedules yet. Tap <strong>+ Add PMS</strong> above to track oil, CVT, or brake intervals.</div>
@@ -154,10 +159,10 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar>
-          <ion-title>
+         <ion-title>
             @if (activeModal === 'odo') { Update Odometer }
             @if (activeModal === 'fuel') { Log Fuel Refill }
-            @if (activeModal === 'pms') { Add PMS Schedule }
+            @if (activeModal === 'pms') { {{ editingTaskId ? 'Edit PMS Schedule' : 'Add PMS Schedule' }} }
             @if (activeModal === 'part') { Log Installed Part }
           </ion-title>
           <ion-buttons slot="end">
@@ -191,7 +196,7 @@
           </div>
         }
 
-        @if (activeModal === 'pms') {
+       @if (activeModal === 'pms') {
           <div class="modal-form">
             <ion-item lines="none" class="dark-input">
               <ion-input label="Task Name (e.g., Engine Oil, CVT Cleaning)" labelPlacement="stacked" [(ngModel)]="taskName"></ion-input>
@@ -199,7 +204,12 @@
             <ion-item lines="none" class="dark-input">
               <ion-input label="Repeat Every (km)" type="number" labelPlacement="stacked" [(ngModel)]="taskIntervalKm"></ion-input>
             </ion-item>
-            <ion-button expand="block" color="primary" (click)="savePmsTask()">Add PMS Task</ion-button>
+            <ion-item lines="none" class="dark-input">
+              <ion-input label="Last Done Odometer (km)" type="number" labelPlacement="stacked" [(ngModel)]="taskLastDoneOdo"></ion-input>
+            </ion-item>
+            <ion-button expand="block" color="primary" (click)="savePmsTask()">
+              {{ editingTaskId ? 'Save Changes' : 'Add PMS Task' }}
+            </ion-button>
           </div>
         }
 

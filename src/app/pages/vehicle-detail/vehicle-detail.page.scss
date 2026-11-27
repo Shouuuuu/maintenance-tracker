@@ -292,4 +292,63 @@
       border-color: #e11d48;
     }
   }
+
+ .quick-odo-pills {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+
+  button {
+    min-width: 0;
+    background: #232834;
+    border: 1px solid #323949;
+    border-radius: 7px;
+    padding: 5px 0;
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: #f8fafc;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+
+    &:active {
+      background: #e11d48;
+      border-color: #e11d48;
+      color: #ffffff;
+    }
+  }
+}
+
+.task-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.done-btn {
+  background: #222731;
+  border: 1px solid #323948;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:active {
+    background: #22c55e;
+    border-color: #22c55e;
+  }
+
+  &.remove {
+    color: #f87171;
+
+    &:active {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+  }
+}
 }

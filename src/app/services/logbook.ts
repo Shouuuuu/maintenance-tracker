@@ -139,10 +139,11 @@ export class Logbook {
   }
 
   updateOdometer(vehicleId: string, newOdometer: number) {
+    if (newOdometer < 0) return;
     const nowIso = new Date().toISOString();
     this._vehicles.update((list) =>
       list.map((v) =>
-        v.id === vehicleId && newOdometer >= v.currentOdometer
+        v.id === vehicleId
           ? { ...v, currentOdometer: newOdometer, lastOdometerUpdated: nowIso }
           : v
       )
@@ -151,11 +152,12 @@ export class Logbook {
     this.scheduleInactivityReminder();
   }
 
-  // Quick one-tap increment (+10, +25, +50 km)
+  // Quick one-tap increment or decrement (-5, -1, +1, +5, +10, +25, +50 km)
   incrementOdometer(vehicleId: string, deltaKm: number) {
     const bike = this._vehicles().find((v) => v.id === vehicleId);
-    if (!bike || deltaKm <= 0) return;
-    this.updateOdometer(vehicleId, bike.currentOdometer + deltaKm);
+    if (!bike || deltaKm === 0) return;
+    const nextOdo = Math.max(0, bike.currentOdometer + deltaKm);
+    this.updateOdometer(vehicleId, nextOdo);
   }
 
   getVehicleAlertCount(vehicleId: string): { overdue: number; dueSoon: number } {
@@ -180,6 +182,18 @@ export class Logbook {
     this._tasks.update((list) => [task, ...list]);
     this.saveToStorage();
     this.scheduleInactivityReminder();
+  }
+
+  updateTask(taskId: string, updates: Partial<Pick<MaintenanceTask, 'name' | 'intervalKm' | 'lastDoneOdometer'>>) {
+    this._tasks.update((list) =>
+      list.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+    );
+    this.saveToStorage();
+  }
+
+  deleteTask(taskId: string) {
+    this._tasks.update((list) => list.filter((t) => t.id !== taskId));
+    this.saveToStorage();
   }
 
   getTaskStatus(task: MaintenanceTask, currentOdo?: number): PmsStatus {
