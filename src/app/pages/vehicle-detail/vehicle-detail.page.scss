@@ -1,75 +1,132 @@
+.detail-toolbar {
+  --background: #12151b;
+  border-bottom: 1px solid #222733;
+
+  ion-title {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #ffffff;
+  }
+}
+
 .bike-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 14px;
 
   .plate-tag {
     display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.68rem;
+    font-weight: 800;
     letter-spacing: 0.08em;
-    background: #232833;
+    background: #222733;
+    border: 1px solid #323949;
     color: #e2e8f0;
     padding: 3px 8px;
     border-radius: 6px;
   }
 
   .model-line {
-    margin: 6px 0 0;
-    font-size: 0.85rem;
+    margin: 5px 0 0;
+    font-size: 0.82rem;
     color: #8e95a5;
     text-transform: capitalize;
   }
 }
 
+/* Telemetry Gauges */
 .telemetry-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
 .gauge-card {
-  background: linear-gradient(145deg, #1a1e26 0%, #14171d 100%);
-  border: 1px solid #262a33;
+  background: #181c24;
+  border: 1px solid #272d3a;
   border-radius: 16px;
   padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
 
-  .gauge-label {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
+.gauge-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.gauge-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8e95a5;
+}
+
+.edit-pill {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #e11d48;
+  background: rgba(225, 29, 72, 0.14);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.gauge-icon {
+  font-size: 0.95rem;
+  color: #e11d48;
+}
+
+.gauge-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+
+  small {
+    font-size: 0.75rem;
+    font-weight: 600;
     color: #8e95a5;
-    margin-bottom: 6px;
-  }
-
-  .gauge-value {
-    font-size: 1.45rem;
-    font-weight: 800;
-    color: #ffffff;
-
-    small {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #8e95a5;
-    }
-  }
-
-  .gauge-action {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 0.74rem;
-    font-weight: 700;
-    color: #e11d48;
-  }
-
-  .gauge-sub {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 0.74rem;
-    color: #64748b;
   }
 }
 
+.gauge-sub {
+  margin-top: 10px;
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.quick-odo-pills {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+
+  button {
+    min-width: 0;
+    background: #222733;
+    border: 1px solid #323949;
+    border-radius: 7px;
+    padding: 5px 0;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #f8fafc;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease;
+
+    &:active {
+      background: #e11d48;
+      border-color: #e11d48;
+    }
+  }
+}
+
+/* Evenly Proportioned Quick Action Bar */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -78,153 +135,271 @@
 }
 
 .action-chip {
-  background: #1a1e26;
-  border: 1px solid #2a303c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: #181c24;
+  border: 1px solid #2b3240;
   color: #f1f5f9;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  padding: 11px 8px;
+  padding: 11px 6px;
   border-radius: 12px;
   cursor: pointer;
+
+  ion-icon {
+    font-size: 0.95rem;
+  }
 
   &.primary {
     background: #e11d48;
     border-color: #e11d48;
     color: #ffffff;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
   }
 
   &:active {
-    opacity: 0.85;
+    transform: scale(0.97);
   }
 }
 
+/* Segment Tabs */
 .garage-segment {
-  --background: #161920;
-  border: 1px solid #262a33;
+  --background: #14171e;
+  border: 1px solid #262c38;
   border-radius: 12px;
   margin-bottom: 16px;
+  padding: 2px;
 
   ion-segment-button {
     --color: #8e95a5;
     --color-checked: #ffffff;
     --indicator-color: #e11d48;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 700;
+    min-height: 36px;
   }
 }
 
 .list-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.data-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  background: #181b21;
-  border: 1px solid #262a33;
-  border-radius: 14px;
-  padding: 14px;
+/* PMS Card */
+.pms-card {
+  background: #181c24;
+  border: 1px solid #272d3a;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 
-  &.overdue {
-    border-left: 4px solid #ef4444;
+  &.ok {
+    border-left: 4px solid #22c55e;
   }
 
   &.due-soon {
     border-left: 4px solid #f59e0b;
   }
 
-  &.ok {
-    border-left: 4px solid #22c55e;
+  &.overdue {
+    border-left: 4px solid #ef4444;
   }
 }
 
-.data-main {
-  flex: 1;
-}
-
-.title-row {
+.pms-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-
-  h3 {
-    margin: 0;
-    font-size: 0.98rem;
-    font-weight: 700;
-    color: #f8fafc;
-  }
+  gap: 10px;
 }
 
-.meta-line {
+.pms-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pms-meta {
   margin: 4px 0 0;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: #8e95a5;
 }
 
-.remaining-line {
-  margin: 6px 0 0;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #cbd5e1;
-}
-
-.note-line {
-  margin: 6px 0 0;
-  font-size: 0.76rem;
-  color: #94a3b8;
-  font-style: italic;
-}
-
 .status-pill {
+  flex-shrink: 0;
   font-size: 0.62rem;
   font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 3px 7px;
+  padding: 4px 8px;
   border-radius: 999px;
 
   &.ok {
-    background: rgba(34, 197, 94, 0.16);
+    background: rgba(34, 197, 94, 0.14);
     color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
   }
+
   &.due-soon {
-    background: rgba(245, 158, 11, 0.16);
+    background: rgba(245, 158, 11, 0.15);
     color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.32);
   }
+
   &.overdue {
-    background: rgba(239, 68, 68, 0.16);
+    background: rgba(239, 68, 68, 0.15);
     color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
   }
 }
 
-.cost-tag,
-.cat-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #f8fafc;
-  background: #232833;
-  padding: 3px 8px;
-  border-radius: 6px;
+/* Progress Bar */
+.progress-section {
+  margin-top: 12px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+
+  strong {
+    color: #ffffff;
+  }
+
+  .pct-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #8e95a5;
+  }
+}
+
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: #232834;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+
+  &.ok {
+    background: #22c55e;
+  }
+
+  &.due-soon {
+    background: #f59e0b;
+  }
+
+  &.overdue {
+    background: #ef4444;
+  }
+}
+
+/* 3 Evenly Balanced Buttons (Done / Edit / Remove) */
+.task-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #242936;
 }
 
 .done-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   background: #222731;
   border: 1px solid #323948;
-  color: #ffffff;
-  font-size: 0.76rem;
+  color: #e2e8f0;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 8px 12px;
+  padding: 9px 8px;
   border-radius: 10px;
   cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+
+  ion-icon {
+    font-size: 0.9rem;
+  }
 
   &:active {
-    background: #22c55e;
-    border-color: #22c55e;
+    transform: scale(0.96);
+    background: #2d3442;
   }
+
+  &.confirm {
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.32);
+
+    &:active {
+      background: #22c55e;
+      color: #ffffff;
+    }
+  }
+
+  &.remove {
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.28);
+
+    &:active {
+      background: #ef4444;
+      color: #ffffff;
+    }
+  }
+}
+
+/* Fuel & Parts Cards */
+.info-card {
+  background: #181c24;
+  border: 1px solid #272d3a;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  h3 {
+    margin: 0;
+    font-size: 0.96rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+
+.badge-tag {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: #232834;
+  border: 1px solid #313847;
+  padding: 4px 9px;
+  border-radius: 8px;
+}
+
+.note-line {
+  margin: 5px 0 0;
+  font-size: 0.74rem;
+  color: #94a3b8;
+  font-style: italic;
 }
 
 .sub-header {
@@ -236,119 +411,110 @@
 }
 
 .empty-box {
-  background: #15181e;
-  border: 1px dashed #2a303c;
+  background: #161a22;
+  border: 1px dashed #2b3240;
   border-radius: 14px;
-  padding: 18px;
+  padding: 20px 16px;
   text-align: center;
   font-size: 0.82rem;
   color: #8e95a5;
+  line-height: 1.45;
 }
 
-.modal-form {
+/* Modal Styles */
+.modal-shell {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  height: 100%;
+  background: #14171d;
+  color: #f4f5f7;
 }
 
-.dark-input {
-  --background: #1c2028;
-  --border-radius: 12px;
-  border: 1px solid #2a303c;
-  border-radius: 12px;
-}
-
-.gauge-header-row {
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #242934;
 
-  .edit-hint {
-    font-size: 0.68rem;
+  h2 {
+    margin: 0;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #e11d48;
+    color: #ffffff;
+  }
+
+  .cancel-btn {
+    background: #202530;
+    border: 1px solid #2e3545;
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #cbd5e1;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
   }
 }
 
-.quick-odo-pills {
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 20px 32px;
   display: flex;
-  gap: 4px;
-  margin-top: 10px;
+  flex-direction: column;
+  gap: 14px;
+}
 
-  button {
-    flex: 1;
-    min-width: 0;
-    background: #232834;
-    border: 1px solid #323949;
-    border-radius: 7px;
-    padding: 5px 0;
-    font-size: 0.66rem;
-    font-weight: 800;
-    color: #f8fafc;
-    cursor: pointer;
-
-    &:active {
-      background: #e11d48;
-      border-color: #e11d48;
-    }
-  }
-
- .quick-odo-pills {
+.two-col {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  margin-top: 10px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
 
-  button {
-    min-width: 0;
-    background: #232834;
-    border: 1px solid #323949;
-    border-radius: 7px;
-    padding: 5px 0;
-    font-size: 0.66rem;
-    font-weight: 800;
-    color: #f8fafc;
-    cursor: pointer;
-    transition: background 0.12s ease, border-color 0.12s ease;
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
-    &:active {
-      background: #e11d48;
+  label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    text-transform: uppercase;
+  }
+
+  input,
+  select {
+    width: 100%;
+    background: #1c212b;
+    border: 1px solid #2e3545;
+    border-radius: 12px;
+    padding: 12px 13px;
+    font-size: 0.92rem;
+    color: #ffffff;
+    outline: none;
+
+    &:focus {
       border-color: #e11d48;
-      color: #ffffff;
     }
   }
 }
 
-.task-actions-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.done-btn {
-  background: #222731;
-  border: 1px solid #323948;
-  color: #ffffff;
-  font-size: 0.76rem;
+.submit-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: #e11d48;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 0.9rem;
   font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 10px;
+  color: #ffffff;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
 
   &:active {
-    background: #22c55e;
-    border-color: #22c55e;
+    opacity: 0.85;
   }
-
-  &.remove {
-    color: #f87171;
-
-    &:active {
-      background: #ef4444;
-      border-color: #ef4444;
-      color: #ffffff;
-    }
-  }
-}
 }

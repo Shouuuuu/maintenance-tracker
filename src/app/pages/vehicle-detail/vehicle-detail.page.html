@@ -1,5 +1,5 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar>
+  <ion-toolbar class="detail-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/garage" text="Garage" color="primary"></ion-back-button>
     </ion-buttons>
@@ -9,23 +9,26 @@
 
 <ion-content class="ion-padding">
   @if (logbook.activeVehicle(); as bike) {
-    <!-- Top Vehicle Identity Strip -->
+    <!-- Vehicle Identity Header -->
     <div class="bike-banner">
-      <div>
+      <div class="banner-left">
         <span class="plate-tag">{{ bike.plateNumber }}</span>
-        <p class="model-line">{{ bike.brand }} {{ bike.model }} • {{ bike.transmissionType }}</p>
+        <p class="model-line">{{ bike.brand }} {{ bike.model }} · {{ bike.transmissionType }}</p>
       </div>
     </div>
 
-    <!-- Hero Telemetry Gauges -->
-   <div class="gauge-card" (click)="openModal('odo')">
+    <!-- Hero Telemetry Cluster -->
+    <div class="telemetry-grid">
+      <div class="gauge-card odo-card" (click)="openModal('odo')">
         <div class="gauge-header-row">
           <span class="gauge-label">ODOMETER</span>
-          <span class="edit-hint">Edit</span>
+          <span class="edit-pill">Edit</span>
         </div>
-        <div class="gauge-value tabular-nums">{{ bike.currentOdometer.toLocaleString() }} <small>km</small></div>
+        <div class="gauge-value tabular-nums">
+          {{ bike.currentOdometer.toLocaleString() }} <small>km</small>
+        </div>
 
-       <div class="quick-odo-pills">
+        <div class="quick-odo-pills">
           <button type="button" (click)="quickAddOdo(1, $event)">+1</button>
           <button type="button" (click)="quickAddOdo(5, $event)">+5</button>
           <button type="button" (click)="quickAddOdo(10, $event)">+10</button>
@@ -34,11 +37,32 @@
         </div>
       </div>
 
-    <!-- Quick Action Buttons -->
+      <div class="gauge-card efficiency-card">
+        <div class="gauge-header-row">
+          <span class="gauge-label">FUEL ECONOMY</span>
+          <ion-icon name="flame-outline" class="gauge-icon"></ion-icon>
+        </div>
+        <div class="gauge-value tabular-nums">
+          {{ logbook.latestKmPerLiter() ?? '--' }} <small>km/L</small>
+        </div>
+        <span class="gauge-sub">Based on last full refill</span>
+      </div>
+    </div>
+
+    <!-- Evenly Spaced Quick Actions -->
     <div class="quick-actions">
-      <button class="action-chip primary" (click)="openModal('fuel')">+ Log Fuel</button>
-      <button class="action-chip" (click)="openModal('pms')">+ Add PMS</button>
-      <button class="action-chip" (click)="openModal('part')">+ Log Part</button>
+      <button type="button" class="action-chip primary" (click)="openModal('fuel')">
+        <ion-icon name="flame-outline"></ion-icon>
+        <span>Log Fuel</span>
+      </button>
+      <button type="button" class="action-chip" (click)="openModal('pms')">
+        <ion-icon name="construct-outline"></ion-icon>
+        <span>Add PMS</span>
+      </button>
+      <button type="button" class="action-chip" (click)="openModal('part')">
+        <ion-icon name="layers-outline"></ion-icon>
+        <span>Log Part</span>
+      </button>
     </div>
 
     <!-- Section Switcher -->
@@ -57,35 +81,61 @@
     <!-- 1. PMS TASKS VIEW -->
     @if (activeSection === 'pms') {
       <div class="list-stack">
-       @for (task of logbook.activeTasks(); track task.id) {
-          <div class="data-card pms-card" [class]="logbook.getTaskStatus(task)">
-            <div class="data-main">
-              <div class="title-row">
-                <h3>{{ task.name }}</h3>
-                <span class="status-pill" [class]="logbook.getTaskStatus(task)">
-                  {{ logbook.getTaskStatus(task) }}
-                </span>
+        @for (task of logbook.activeTasks(); track task.id) {
+          <div class="pms-card" [class]="logbook.getTaskStatus(task)">
+            <div class="pms-top">
+              <div>
+                <h3 class="pms-title">{{ task.name }}</h3>
+                <p class="pms-meta">
+                  Every {{ task.intervalKm.toLocaleString() }} km · Last done at {{ task.lastDoneOdometer.toLocaleString() }} km
+                </p>
               </div>
-              <p class="meta-line">
-                Every {{ task.intervalKm.toLocaleString() }} km • Last done at {{ task.lastDoneOdometer.toLocaleString() }} km
-              </p>
-              <p class="remaining-line tabular-nums">
-                @if (logbook.getRemainingKm(task) > 0) {
-                  {{ logbook.getRemainingKm(task).toLocaleString() }} km remaining
-                } @else {
-                  Overdue by {{ (-logbook.getRemainingKm(task)).toLocaleString() }} km
-                }
-              </p>
+              <span class="status-pill" [class]="logbook.getTaskStatus(task)">
+                {{ logbook.getTaskStatus(task) === 'due-soon' ? 'DUE SOON' : logbook.getTaskStatus(task) }}
+              </span>
+            </div>
 
-             <div class="task-actions-row">
-                <button type="button" class="done-btn" (click)="markTaskDone(task)">Done</button>
-                <button type="button" class="done-btn" (click)="openEditTaskModal(task)">Edit</button>
-                <button type="button" class="done-btn remove" (click)="confirmDeleteTask(task)">Remove</button>
+            <!-- Interval Wear Progress Bar -->
+            <div class="progress-section">
+              <div class="progress-labels tabular-nums">
+                <span>
+                  @if (logbook.getRemainingKm(task) > 0) {
+                    <strong>{{ logbook.getRemainingKm(task).toLocaleString() }} km</strong> remaining
+                  } @else {
+                    <strong>Overdue by {{ (-logbook.getRemainingKm(task)).toLocaleString() }} km</strong>
+                  }
+                </span>
+                <span class="pct-label">{{ getTaskProgress(task) }}%</span>
               </div>
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  [class]="logbook.getTaskStatus(task)"
+                  [style.width.%]="getTaskProgress(task)">
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 Evenly Proportioned Action Buttons -->
+            <div class="task-actions-grid">
+              <button type="button" class="done-btn confirm" (click)="markTaskDone(task)">
+                <ion-icon name="checkmark-outline"></ion-icon>
+                <span>Done</span>
+              </button>
+              <button type="button" class="done-btn" (click)="openEditTaskModal(task)">
+                <ion-icon name="create-outline"></ion-icon>
+                <span>Edit</span>
+              </button>
+              <button type="button" class="done-btn remove" (click)="confirmDeleteTask(task)">
+                <ion-icon name="trash-outline"></ion-icon>
+                <span>Remove</span>
+              </button>
             </div>
           </div>
         } @empty {
-          <div class="empty-box">No PMS schedules yet. Tap <strong>+ Add PMS</strong> above to track oil, CVT, or brake intervals.</div>
+          <div class="empty-box">
+            No PMS schedules yet. Tap <strong>Add PMS</strong> above to track oil, CVT, or brake intervals.
+          </div>
         }
       </div>
     }
@@ -94,19 +144,17 @@
     @if (activeSection === 'fuel') {
       <div class="list-stack">
         @for (log of logbook.activeFuelLogs(); track log.id) {
-          <div class="data-card">
-            <div class="data-main">
-              <div class="title-row">
-                <h3 class="tabular-nums">{{ log.odometer }} km</h3>
-                <span class="cost-tag tabular-nums">PHP {{ log.totalCost }}</span>
+          <div class="info-card">
+            <div class="info-row">
+              <div>
+                <h3 class="tabular-nums">{{ log.odometer.toLocaleString() }} km</h3>
+                <p class="pms-meta tabular-nums">{{ log.date }} · {{ log.liters }} L @ ₱{{ log.pricePerLiter }}/L</p>
               </div>
-              <p class="meta-line tabular-nums">
-                {{ log.date }} • {{ log.liters }} L @ PHP {{ log.pricePerLiter }}/L
-              </p>
+              <span class="badge-tag tabular-nums">₱{{ log.totalCost }}</span>
             </div>
           </div>
         } @empty {
-          <div class="empty-box">No refills logged yet. Tap <strong>+ Log Fuel</strong> after filling up.</div>
+          <div class="empty-box">No refills logged yet. Tap <strong>Log Fuel</strong> after filling up.</div>
         }
       </div>
     }
@@ -116,18 +164,16 @@
       <div class="sub-header">INSTALLED PARTS ({{ logbook.activeParts().length }})</div>
       <div class="list-stack">
         @for (part of logbook.activeParts(); track part.id) {
-          <div class="data-card">
-            <div class="data-main">
-              <div class="title-row">
+          <div class="info-card">
+            <div class="info-row">
+              <div>
                 <h3>{{ part.partName }}</h3>
-                <span class="cat-tag">{{ part.category }}</span>
+                <p class="pms-meta">{{ part.brand }} · {{ part.installedOdometer.toLocaleString() }} km · ₱{{ part.cost }}</p>
+                @if (part.notes) {
+                  <p class="note-line">{{ part.notes }}</p>
+                }
               </div>
-              <p class="meta-line">
-                {{ part.brand }} • Installed at {{ part.installedOdometer }} km • PHP {{ part.cost }}
-              </p>
-              @if (part.notes) {
-                <p class="note-line">{{ part.notes }}</p>
-              }
+              <span class="badge-tag">{{ part.category }}</span>
             </div>
           </div>
         } @empty {
@@ -135,16 +181,16 @@
         }
       </div>
 
-      <div class="sub-header ion-margin-top">COMPLETED SERVICE HISTORY ({{ logbook.activeServiceRecords().length }})</div>
+      <div class="sub-header ion-margin-top">SERVICE HISTORY ({{ logbook.activeServiceRecords().length }})</div>
       <div class="list-stack">
         @for (rec of logbook.activeServiceRecords(); track rec.id) {
-          <div class="data-card">
-            <div class="data-main">
-              <div class="title-row">
+          <div class="info-card">
+            <div class="info-row">
+              <div>
                 <h3>{{ rec.title }}</h3>
-                <span class="meta-line tabular-nums">{{ rec.date }}</span>
+                <p class="pms-meta tabular-nums">{{ rec.odometer.toLocaleString() }} km · {{ rec.shopName }}</p>
               </div>
-              <p class="meta-line tabular-nums">Done at {{ rec.odometer }} km • {{ rec.shopName }}</p>
+              <span class="badge-tag tabular-nums">{{ rec.date }}</span>
             </div>
           </div>
         } @empty {
@@ -154,93 +200,101 @@
     }
   }
 
-  <!-- SLIDE-UP ACTION MODALS -->
-  <ion-modal [isOpen]="activeModal !== null" (didDismiss)="closeModal()" [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.85]">
+  <!-- ACTION MODALS -->
+  <ion-modal [isOpen]="activeModal !== null" (didDismiss)="closeModal()">
     <ng-template>
-      <ion-header class="ion-no-border">
-        <ion-toolbar>
-         <ion-title>
+      <div class="modal-shell">
+        <div class="modal-header">
+          <h2>
             @if (activeModal === 'odo') { Update Odometer }
             @if (activeModal === 'fuel') { Log Fuel Refill }
             @if (activeModal === 'pms') { {{ editingTaskId ? 'Edit PMS Schedule' : 'Add PMS Schedule' }} }
             @if (activeModal === 'part') { Log Installed Part }
-          </ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeModal()">Close</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
+          </h2>
+          <button type="button" class="cancel-btn" (click)="closeModal()">Close</button>
+        </div>
 
-      <ion-content class="ion-padding">
-        @if (activeModal === 'odo') {
-          <div class="modal-form">
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Current Odometer (km)" type="number" labelPlacement="stacked" [(ngModel)]="newOdometer"></ion-input>
-            </ion-item>
-            <ion-button expand="block" color="primary" (click)="saveOdometer()">Save Odometer</ion-button>
-          </div>
-        }
+        <div class="modal-body">
+          @if (activeModal === 'odo') {
+            <div class="field-group">
+              <label>Current Odometer (km)</label>
+              <input type="number" [(ngModel)]="newOdometer" placeholder="23232" />
+            </div>
+            <button type="button" class="submit-btn" (click)="saveOdometer()">Save Odometer</button>
+          }
 
-        @if (activeModal === 'fuel') {
-          <div class="modal-form">
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Odometer at Pump (km)" type="number" labelPlacement="stacked" [(ngModel)]="fuelOdo"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Liters Filled (L)" type="number" labelPlacement="stacked" [(ngModel)]="fuelLiters"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Total Cost (PHP)" type="number" labelPlacement="stacked" [(ngModel)]="fuelCost"></ion-input>
-            </ion-item>
-            <ion-button expand="block" color="primary" (click)="saveFuel()">Save Refill</ion-button>
-          </div>
-        }
+          @if (activeModal === 'fuel') {
+            <div class="field-group">
+              <label>Odometer at Pump (km)</label>
+              <input type="number" [(ngModel)]="fuelOdo" />
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label>Liters Filled (L)</label>
+                <input type="number" [(ngModel)]="fuelLiters" placeholder="3.8" />
+              </div>
+              <div class="field-group">
+                <label>Total Cost (PHP)</label>
+                <input type="number" [(ngModel)]="fuelCost" placeholder="220" />
+              </div>
+            </div>
+            <button type="button" class="submit-btn" (click)="saveFuel()">Save Refill</button>
+          }
 
-       @if (activeModal === 'pms') {
-          <div class="modal-form">
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Task Name (e.g., Engine Oil, CVT Cleaning)" labelPlacement="stacked" [(ngModel)]="taskName"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Repeat Every (km)" type="number" labelPlacement="stacked" [(ngModel)]="taskIntervalKm"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Last Done Odometer (km)" type="number" labelPlacement="stacked" [(ngModel)]="taskLastDoneOdo"></ion-input>
-            </ion-item>
-            <ion-button expand="block" color="primary" (click)="savePmsTask()">
+          @if (activeModal === 'pms') {
+            <div class="field-group">
+              <label>Task Name</label>
+              <input type="text" [(ngModel)]="taskName" placeholder="e.g., Engine Oil, CVT Cleaning" />
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label>Repeat Every (km)</label>
+                <input type="number" [(ngModel)]="taskIntervalKm" placeholder="1500" />
+              </div>
+              <div class="field-group">
+                <label>Last Done Odo (km)</label>
+                <input type="number" [(ngModel)]="taskLastDoneOdo" />
+              </div>
+            </div>
+            <button type="button" class="submit-btn" (click)="savePmsTask()">
               {{ editingTaskId ? 'Save Changes' : 'Add PMS Task' }}
-            </ion-button>
-          </div>
-        }
+            </button>
+          }
 
-        @if (activeModal === 'part') {
-          <div class="modal-form">
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Part Name (e.g., 1000 RPM Center Spring)" labelPlacement="stacked" [(ngModel)]="partName"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-select label="Category" labelPlacement="stacked" [(ngModel)]="partCategory">
-                <ion-select-option value="CVT / Drivetrain">CVT / Drivetrain</ion-select-option>
-                <ion-select-option value="Engine">Engine</ion-select-option>
-                <ion-select-option value="Exhaust">Exhaust</ion-select-option>
-                <ion-select-option value="Brakes & Tires">Brakes & Tires</ion-select-option>
-                <ion-select-option value="Electrical">Electrical</ion-select-option>
-                <ion-select-option value="Other">Other</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Brand" labelPlacement="stacked" [(ngModel)]="partBrand"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Cost (PHP)" type="number" labelPlacement="stacked" [(ngModel)]="partCost"></ion-input>
-            </ion-item>
-            <ion-item lines="none" class="dark-input">
-              <ion-input label="Notes / Specs (optional)" labelPlacement="stacked" [(ngModel)]="partNotes"></ion-input>
-            </ion-item>
-            <ion-button expand="block" color="primary" (click)="savePart()">Save Part</ion-button>
-          </div>
-        }
-      </ion-content>
+          @if (activeModal === 'part') {
+            <div class="field-group">
+              <label>Part Name</label>
+              <input type="text" [(ngModel)]="partName" placeholder="e.g., 1000 RPM Center Spring" />
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label>Category</label>
+                <select [(ngModel)]="partCategory">
+                  <option value="CVT / Drivetrain">CVT / Drivetrain</option>
+                  <option value="Engine">Engine</option>
+                  <option value="Exhaust">Exhaust</option>
+                  <option value="Brakes & Tires">Brakes & Tires</option>
+                  <option value="Electrical">Electrical</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>Brand</label>
+                <input type="text" [(ngModel)]="partBrand" placeholder="CWorks" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Cost (PHP)</label>
+              <input type="number" [(ngModel)]="partCost" placeholder="450" />
+            </div>
+            <div class="field-group">
+              <label>Notes / Specs (optional)</label>
+              <input type="text" [(ngModel)]="partNotes" placeholder="11g/12g flyball combo" />
+            </div>
+            <button type="button" class="submit-btn" (click)="savePart()">Save Part</button>
+          }
+        </div>
+      </div>
     </ng-template>
   </ion-modal>
 </ion-content>

@@ -7,43 +7,44 @@ import {
   IonTitle,
   IonButtons,
   IonBackButton,
-  IonButton,
   IonContent,
   IonSegment,
   IonSegmentButton,
   IonLabel,
   IonModal,
-  IonItem,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  AlertController,
-} from '@ionic/angular';
+  IonIcon,
+  AlertController, IonButton, IonItem } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  checkmarkOutline,
+  createOutline,
+  trashOutline,
+  flameOutline,
+  constructOutline,
+  layersOutline,
+  speedometerOutline,
+} from 'ionicons/icons';
 import { Logbook } from '../../services/logbook';
 import { MaintenanceTask, VehiclePart } from '../../models/vehicle.model';
 
 @Component({
   selector: 'app-vehicle-detail',
   templateUrl: './vehicle-detail.page.html',
-  styleUrls: ['./vehicle-detail.page.scss'],
+  styleUrl: './vehicle-detail.page.scss',
   standalone: true,
-  imports: [
+  imports: [IonItem, IonButton, 
     FormsModule,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonButtons,
     IonBackButton,
-    IonButton,
     IonContent,
     IonSegment,
     IonSegmentButton,
     IonLabel,
     IonModal,
-    IonItem,
-    IonInput,
-    IonSelect,
-    IonSelectOption,
+    IonIcon,
   ],
 })
 export class VehicleDetailPage implements OnInit {
@@ -78,7 +79,17 @@ export class VehicleDetailPage implements OnInit {
   partCost: number | null = null;
   partNotes = '';
 
-
+  constructor() {
+    addIcons({
+      checkmarkOutline,
+      createOutline,
+      trashOutline,
+      flameOutline,
+      constructOutline,
+      layersOutline,
+      speedometerOutline,
+    });
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -91,74 +102,25 @@ export class VehicleDetailPage implements OnInit {
   }
 
   openModal(type: 'odo' | 'fuel' | 'pms' | 'part') {
-  const currentOdo = this.logbook.activeVehicle()?.currentOdometer ?? null;
-  if (type === 'odo') this.newOdometer = currentOdo;
-  if (type === 'fuel') this.fuelOdo = currentOdo;
-  if (type === 'pms') {
-    this.editingTaskId = null;
-    this.taskName = '';
-    this.taskIntervalKm = null;
-    this.taskLastDoneOdo = currentOdo;
-  }
-  this.activeModal = type;
-}
-
-openEditTaskModal(task: MaintenanceTask) {
-  this.editingTaskId = task.id;
-  this.taskName = task.name;
-  this.taskIntervalKm = task.intervalKm;
-  this.taskLastDoneOdo = task.lastDoneOdometer;
-  this.activeModal = 'pms';
-}
-
-savePmsTask() {
-  const bike = this.logbook.activeVehicle();
-  if (!bike || !this.taskName.trim() || !this.taskIntervalKm || this.taskIntervalKm <= 0) return;
-
-  if (this.editingTaskId) {
-    this.logbook.updateTask(this.editingTaskId, {
-      name: this.taskName.trim(),
-      intervalKm: Number(this.taskIntervalKm),
-      lastDoneOdometer: Number(this.taskLastDoneOdo ?? bike.currentOdometer),
-    });
-  } else {
-    this.logbook.addTask({
-      id: crypto.randomUUID(),
-      vehicleId: bike.id,
-      name: this.taskName.trim(),
-      intervalKm: Number(this.taskIntervalKm),
-      intervalMonths: 3,
-      lastDoneOdometer: Number(this.taskLastDoneOdo ?? bike.currentOdometer),
-      lastDoneDate: new Date().toISOString().split('T')[0],
-    });
+    const currentOdo = this.logbook.activeVehicle()?.currentOdometer ?? null;
+    if (type === 'odo') this.newOdometer = currentOdo;
+    if (type === 'fuel') this.fuelOdo = currentOdo;
+    if (type === 'pms') {
+      this.editingTaskId = null;
+      this.taskName = '';
+      this.taskIntervalKm = null;
+      this.taskLastDoneOdo = currentOdo;
+    }
+    this.activeModal = type;
   }
 
-  this.editingTaskId = null;
-  this.taskName = '';
-  this.taskIntervalKm = null;
-  this.taskLastDoneOdo = null;
-  this.closeModal();
-}
-
-async confirmDeleteTask(task: MaintenanceTask) {
-  const alert = await this.alertCtrl.create({
-    header: 'Remove PMS Task?',
-    subHeader: task.name,
-    message: 'This will remove this maintenance schedule from your vehicle.',
-    cssClass: 'garage-alert',
-    buttons: [
-      { text: 'Cancel', role: 'cancel' },
-      {
-        text: 'Remove',
-        role: 'confirm',
-        handler: () => {
-          this.logbook.deleteTask(task.id);
-        },
-      },
-    ],
-  });
-  await alert.present();
-}
+  openEditTaskModal(task: MaintenanceTask) {
+    this.editingTaskId = task.id;
+    this.taskName = task.name;
+    this.taskIntervalKm = task.intervalKm;
+    this.taskLastDoneOdo = task.lastDoneOdometer;
+    this.activeModal = 'pms';
+  }
 
   closeModal() {
     this.activeModal = null;
@@ -173,7 +135,15 @@ async confirmDeleteTask(task: MaintenanceTask) {
 
   saveFuel() {
     const bike = this.logbook.activeVehicle();
-    if (!bike || this.fuelOdo === null || this.fuelLiters === null || this.fuelCost === null || this.fuelLiters <= 0) return;
+    if (
+      !bike ||
+      this.fuelOdo === null ||
+      this.fuelLiters === null ||
+      this.fuelCost === null ||
+      this.fuelLiters <= 0
+    ) {
+      return;
+    }
 
     const litersNum = Number(this.fuelLiters);
     const totalNum = Number(this.fuelCost);
@@ -194,7 +164,36 @@ async confirmDeleteTask(task: MaintenanceTask) {
     this.closeModal();
   }
 
- async markTaskDone(task: MaintenanceTask) {
+  savePmsTask() {
+    const bike = this.logbook.activeVehicle();
+    if (!bike || !this.taskName.trim() || !this.taskIntervalKm || this.taskIntervalKm <= 0) return;
+
+    if (this.editingTaskId) {
+      this.logbook.updateTask(this.editingTaskId, {
+        name: this.taskName.trim(),
+        intervalKm: Number(this.taskIntervalKm),
+        lastDoneOdometer: Number(this.taskLastDoneOdo ?? bike.currentOdometer),
+      });
+    } else {
+      this.logbook.addTask({
+        id: crypto.randomUUID(),
+        vehicleId: bike.id,
+        name: this.taskName.trim(),
+        intervalKm: Number(this.taskIntervalKm),
+        intervalMonths: 3,
+        lastDoneOdometer: Number(this.taskLastDoneOdo ?? bike.currentOdometer),
+        lastDoneDate: new Date().toISOString().split('T')[0],
+      });
+    }
+
+    this.editingTaskId = null;
+    this.taskName = '';
+    this.taskIntervalKm = null;
+    this.taskLastDoneOdo = null;
+    this.closeModal();
+  }
+
+  async markTaskDone(task: MaintenanceTask) {
     const bike = this.logbook.activeVehicle();
     if (!bike) return;
 
@@ -241,6 +240,26 @@ async confirmDeleteTask(task: MaintenanceTask) {
     await alert.present();
   }
 
+  async confirmDeleteTask(task: MaintenanceTask) {
+    const alert = await this.alertCtrl.create({
+      header: 'Remove PMS Task?',
+      subHeader: task.name,
+      message: 'This will remove this maintenance schedule from your vehicle.',
+      cssClass: 'garage-alert',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Remove',
+          role: 'confirm',
+          handler: () => {
+            this.logbook.deleteTask(task.id);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   savePart() {
     const bike = this.logbook.activeVehicle();
     if (!bike || !this.partName) return;
@@ -264,11 +283,16 @@ async confirmDeleteTask(task: MaintenanceTask) {
     this.closeModal();
   }
 
-quickAddOdo(deltaKm: number, event: Event) {
+  getTaskProgress(task: MaintenanceTask): number {
+    const odo = this.logbook.activeVehicle()?.currentOdometer ?? 0;
+    const used = Math.max(0, odo - task.lastDoneOdometer);
+    return Math.min(100, Math.round((used / task.intervalKm) * 100));
+  }
+
+  quickAddOdo(deltaKm: number, event: Event) {
     event.stopPropagation();
     const bike = this.logbook.activeVehicle();
     if (!bike) return;
     this.logbook.incrementOdometer(bike.id, deltaKm);
   }
-
 }
