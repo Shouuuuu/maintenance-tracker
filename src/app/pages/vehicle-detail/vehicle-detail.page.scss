@@ -1,0 +1,259 @@
+.bike-banner {
+  margin-bottom: 14px;
+
+  .plate-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    background: #232833;
+    color: #e2e8f0;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  .model-line {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: #8e95a5;
+    text-transform: capitalize;
+  }
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.gauge-card {
+  background: linear-gradient(145deg, #1a1e26 0%, #14171d 100%);
+  border: 1px solid #262a33;
+  border-radius: 16px;
+  padding: 14px;
+
+  .gauge-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #8e95a5;
+    margin-bottom: 6px;
+  }
+
+  .gauge-value {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+
+    small {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #8e95a5;
+    }
+  }
+
+  .gauge-action {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #e11d48;
+  }
+
+  .gauge-sub {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.74rem;
+    color: #64748b;
+  }
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.action-chip {
+  background: #1a1e26;
+  border: 1px solid #2a303c;
+  color: #f1f5f9;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 11px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+
+  &.primary {
+    background: #e11d48;
+    border-color: #e11d48;
+    color: #ffffff;
+  }
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.garage-segment {
+  --background: #161920;
+  border: 1px solid #262a33;
+  border-radius: 12px;
+  margin-bottom: 16px;
+
+  ion-segment-button {
+    --color: #8e95a5;
+    --color-checked: #ffffff;
+    --indicator-color: #e11d48;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+}
+
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.data-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #181b21;
+  border: 1px solid #262a33;
+  border-radius: 14px;
+  padding: 14px;
+
+  &.overdue {
+    border-left: 4px solid #ef4444;
+  }
+
+  &.due-soon {
+    border-left: 4px solid #f59e0b;
+  }
+
+  &.ok {
+    border-left: 4px solid #22c55e;
+  }
+}
+
+.data-main {
+  flex: 1;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+}
+
+.meta-line {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: #8e95a5;
+}
+
+.remaining-line {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.note-line {
+  margin: 6px 0 0;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.status-pill {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+
+  &.ok {
+    background: rgba(34, 197, 94, 0.16);
+    color: #4ade80;
+  }
+  &.due-soon {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fbbf24;
+  }
+  &.overdue {
+    background: rgba(239, 68, 68, 0.16);
+    color: #f87171;
+  }
+}
+
+.cost-tag,
+.cat-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: #232833;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.done-btn {
+  background: #222731;
+  border: 1px solid #323948;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:active {
+    background: #22c55e;
+    border-color: #22c55e;
+  }
+}
+
+.sub-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8e95a5;
+  margin-bottom: 10px;
+}
+
+.empty-box {
+  background: #15181e;
+  border: 1px dashed #2a303c;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #8e95a5;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dark-input {
+  --background: #1c2028;
+  --border-radius: 12px;
+  border: 1px solid #2a303c;
+  border-radius: 12px;
+}

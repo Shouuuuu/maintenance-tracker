@@ -1,16 +1,176 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonBackButton,
+  IonButton,
+  IonContent,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
+  IonModal,
+  IonItem,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+} from '@ionic/angular';
+import { Logbook } from '../../services/logbook';
+import { VehiclePart } from '../../models/vehicle.model';
 
 @Component({
   selector: 'app-vehicle-detail',
   templateUrl: './vehicle-detail.page.html',
   styleUrls: ['./vehicle-detail.page.scss'],
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule],
+  standalone: true,
+  imports: [
+    FormsModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonBackButton,
+    IonButton,
+    IonContent,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonModal,
+    IonItem,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+  ],
 })
 export class VehicleDetailPage implements OnInit {
-  constructor() {}
+  public logbook = inject(Logbook);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  ngOnInit() {}
+  activeSection: 'pms' | 'fuel' | 'parts' = 'pms';
+
+  // Modal states
+  activeModal: 'odo' | 'fuel' | 'pms' | 'part' | null = null;
+
+  // Odometer form
+  newOdometer: number | null = null;
+
+  // Fuel form
+  fuelOdo: number | null = null;
+  fuelLiters: number | null = null;
+  fuelCost: number | null = null;
+
+  // PMS Task form
+  taskName = '';
+  taskIntervalKm: number | null = null;
+
+  // Part form
+  partName = '';
+  partCategory: VehiclePart['category'] = 'CVT / Drivetrain';
+  partBrand = '';
+  partCost: number | null = null;
+  partNotes = '';
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.logbook.selectVehicle(id);
+    }
+    if (!this.logbook.activeVehicle()) {
+      this.router.navigate(['/garage']);
+    }
+  }
+
+  openModal(type: 'odo' | 'fuel' | 'pms' | 'part') {
+    const currentOdo = this.logbook.activeVehicle()?.currentOdometer ?? null;
+    if (type === 'odo') this.newOdometer = currentOdo;
+    if (type === 'fuel') this.fuelOdo = currentOdo;
+    this.activeModal = type;
+  }
+
+  closeModal() {
+    this.activeModal = null;
+  }
+
+  saveOdometer() {
+    const bike = this.logbook.activeVehicle();
+    if (!bike || this.newOdometer === null) return;
+    this.logbook.updateOdometer(bike.id, Number(this.newOdometer));
+    this.closeModal();
+  }
+
+  saveFuel() {
+    const bike = this.logbook.activeVehicle();
+    if (!bike || this.fuelOdo === null || this.fuelLiters === null || this.fuelCost === null || this.fuelLiters <= 0) return;
+
+    const litersNum = Number(this.fuelLiters);
+    const totalNum = Number(this.fuelCost);
+
+    this.logbook.addFuelLog({
+      id: crypto.randomUUID(),
+      vehicleId: bike.id,
+      date: new Date().toISOString().split('T')[0],
+      odometer: Number(this.fuelOdo),
+      liters: litersNum,
+      pricePerLiter: Number((totalNum / litersNum).toFixed(2)),
+      totalCost: totalNum,
+      isFullTank: true,
+    });
+
+    this.fuelLiters = null;
+    this.fuelCost = null;
+    this.closeModal();
+  }
+
+  savePmsTask() {
+    const bike = this.logbook.activeVehicle();
+    if (!bike || !this.taskName || !this.taskIntervalKm) return;
+
+    this.logbook.addTask({
+      id: crypto.randomUUID(),
+      vehicleId: bike.id,
+      name: this.taskName.trim(),
+      intervalKm: Number(this.taskIntervalKm),
+      intervalMonths: 3,
+      lastDoneOdometer: bike.currentOdometer,
+      lastDoneDate: new Date().toISOString().split('T')[0],
+    });
+
+    this.taskName = '';
+    this.taskIntervalKm = null;
+    this.closeModal();
+  }
+
+  markTaskDone(taskId: string) {
+    const bike = this.logbook.activeVehicle();
+    if (!bike) return;
+    const today = new Date().toISOString().split('T')[0];
+    this.logbook.completeTask(taskId, bike.currentOdometer, today, 0, 'Self / Home Garage', '');
+  }
+
+  savePart() {
+    const bike = this.logbook.activeVehicle();
+    if (!bike || !this.partName) return;
+
+    this.logbook.addVehiclePart({
+      id: crypto.randomUUID(),
+      vehicleId: bike.id,
+      partName: this.partName.trim(),
+      category: this.partCategory,
+      brand: this.partBrand.trim() || 'Stock / OEM',
+      installedOdometer: bike.currentOdometer,
+      installedDate: new Date().toISOString().split('T')[0],
+      cost: Number(this.partCost ?? 0),
+      notes: this.partNotes.trim(),
+    });
+
+    this.partName = '';
+    this.partBrand = '';
+    this.partCost = null;
+    this.partNotes = '';
+    this.closeModal();
+  }
 }

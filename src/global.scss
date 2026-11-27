@@ -1,15 +1,45 @@
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* Dark Garage Global Theme */
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body,
+ion-app {
+  background: #0f1115;
+  color: #f4f5f7;
+}
+
 ion-content {
   --background: #0f1115;
+  --color: #f4f5f7;
 }
 
 ion-toolbar {
   --background: #0f1115;
+  --color: #f4f5f7;
   --border-color: #262a33;
 }
 
 ion-modal {
   --background: #14171d;
-  --border-radius: 20px 20px 0 0;
+  --color: #f4f5f7;
 }
 
 .tabular-nums {

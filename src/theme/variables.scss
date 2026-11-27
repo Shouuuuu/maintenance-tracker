@@ -1,17 +1,25 @@
-ion-content {
-  --background: #0f1115;
-}
+:root {
+  /* Primary Accent: Crimson Red */
+  --ion-color-primary: #e11d48;
+  --ion-color-primary-rgb: 225, 29, 72;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #c61a3f;
+  --ion-color-primary-tint: #e4345a;
 
-ion-toolbar {
-  --background: #0f1115;
-  --border-color: #262a33;
-}
+  /* Status Colors */
+  --ion-color-success: #22c55e;
+  --ion-color-warning: #f59e0b;
+  --ion-color-danger: #ef4444;
 
-ion-modal {
-  --background: #14171d;
-  --border-radius: 20px 20px 0 0;
-}
+  /* Dark Garage Surfaces */
+  --ion-background-color: #0f1115;
+  --ion-background-color-rgb: 15, 17, 21;
+  --ion-text-color: #f4f5f7;
+  --ion-text-color-rgb: 244, 245, 247;
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+  --ion-card-background: #181b21;
+  --ion-item-background: #181b21;
+  --ion-toolbar-background: #0f1115;
+  --ion-border-color: #262a33;
 }

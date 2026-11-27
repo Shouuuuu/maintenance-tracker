@@ -1,13 +1,152 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>garage</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="app-toolbar">
+    <div class="header-bar">
+      <div class="brand-block">
+        <div class="brand-logo">
+          <ion-icon name="speedometer-outline"></ion-icon>
+        </div>
+        <div>
+          <h1 class="app-name">MotoLog</h1>
+          <p class="app-sub">Personal Garage & PMS</p>
+        </div>
+      </div>
+
+      <button type="button" class="add-ride-btn" (click)="openRegisterModal()">
+        <ion-icon name="add"></ion-icon>
+        <span>Add Ride</span>
+      </button>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">garage</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  @if (logbook.vehicles().length === 0) {
+    <div class="empty-card">
+      <div class="empty-icon-wrap">
+        <ion-icon name="bicycle-outline"></ion-icon>
+      </div>
+      <h2>Your garage is empty</h2>
+      <p>Register your motorcycle or car to track PMS schedules, fuel economy, and aftermarket parts.</p>
+      <button type="button" class="primary-cta" (click)="openRegisterModal()">
+        <ion-icon name="add"></ion-icon>
+        Register First Vehicle
+      </button>
+    </div>
+  } @else {
+    <div class="list-header">
+      <span class="list-title">YOUR GARAGE</span>
+      <span class="list-count">{{ logbook.vehicles().length }} {{ logbook.vehicles().length === 1 ? 'Vehicle' : 'Vehicles' }}</span>
+    </div>
+
+    <div class="vehicle-list">
+      @for (bike of logbook.vehicles(); track bike.id) {
+        <div class="ride-card" (click)="openVehicleDashboard(bike.id)">
+          <!-- Card Header: Vehicle Icon + Name + Status Pill -->
+          <div class="ride-card-top">
+            <div class="ride-identity">
+              <div class="ride-avatar">
+                <ion-icon [name]="bike.vehicleType === 'car' ? 'car-sport-outline' : 'bicycle-outline'"></ion-icon>
+              </div>
+              <div>
+                <div class="name-plate-row">
+                  <h2 class="ride-name">{{ bike.nickname }}</h2>
+                  <span class="plate-chip">{{ bike.plateNumber }}</span>
+                </div>
+                <p class="ride-model">{{ bike.brand }} {{ bike.model }} · {{ bike.transmissionType }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Banner inside Card -->
+          <div class="ride-status-row">
+            @if (logbook.getVehicleAlertCount(bike.id).overdue > 0) {
+              <div class="status-badge overdue">
+                <ion-icon name="alert-circle"></ion-icon>
+                <span>{{ logbook.getVehicleAlertCount(bike.id).overdue }} PMS Overdue</span>
+              </div>
+            } @else if (logbook.getVehicleAlertCount(bike.id).dueSoon > 0) {
+              <div class="status-badge due-soon">
+                <ion-icon name="warning"></ion-icon>
+                <span>{{ logbook.getVehicleAlertCount(bike.id).dueSoon }} Due Soon</span>
+              </div>
+            } @else {
+              <div class="status-badge ok">
+                <ion-icon name="shield-checkmark"></ion-icon>
+                <span>All PMS Up to Date</span>
+              </div>
+            }
+          </div>
+
+          <!-- Card Footer: Odometer Box + Open Action -->
+          <div class="ride-card-footer">
+            <div class="odo-box">
+              <span class="odo-caption">CURRENT ODOMETER</span>
+              <span class="odo-number tabular-nums">{{ bike.currentOdometer.toLocaleString() }} <small>km</small></span>
+            </div>
+
+            <div class="open-pill">
+              <span>Inspect</span>
+              <ion-icon name="chevron-forward"></ion-icon>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal: Register New Vehicle -->
+  <ion-modal [isOpen]="isRegisterModalOpen" (didDismiss)="closeRegisterModal()">
+    <ng-template>
+      <div class="modal-shell">
+        <div class="modal-header">
+          <div>
+            <h2>Register Vehicle</h2>
+            <p>Add a bike or car to your garage</p>
+          </div>
+          <button type="button" class="cancel-btn" (click)="closeRegisterModal()">Cancel</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Vehicle Nickname</label>
+            <input type="text" [(ngModel)]="nickname" placeholder="e.g., Daily Beat" />
+          </div>
+
+          <div class="two-col">
+            <div class="field-group">
+              <label>Brand</label>
+              <input type="text" [(ngModel)]="brand" placeholder="Honda" />
+            </div>
+            <div class="field-group">
+              <label>Model</label>
+              <input type="text" [(ngModel)]="model" placeholder="Beat V3" />
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="field-group">
+              <label>Plate Number</label>
+              <input type="text" [(ngModel)]="plateNumber" placeholder="247WWE" />
+            </div>
+            <div class="field-group">
+              <label>Transmission</label>
+              <select [(ngModel)]="transmissionType">
+                <option value="automatic">Automatic / CVT</option>
+                <option value="manual">Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Current Odometer (km)</label>
+            <input type="number" [(ngModel)]="currentOdometer" placeholder="23232" />
+          </div>
+
+          <button type="button" class="submit-btn" (click)="saveNewVehicle()">
+            Save to Garage
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>
