@@ -17,9 +17,10 @@ import {
   IonInput,
   IonSelect,
   IonSelectOption,
+  AlertController,
 } from '@ionic/angular';
 import { Logbook } from '../../services/logbook';
-import { VehiclePart } from '../../models/vehicle.model';
+import { MaintenanceTask, VehiclePart } from '../../models/vehicle.model';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -49,6 +50,7 @@ export class VehicleDetailPage implements OnInit {
   public logbook = inject(Logbook);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private alertCtrl = inject(AlertController);
 
   activeSection: 'pms' | 'fuel' | 'parts' = 'pms';
 
@@ -144,11 +146,51 @@ export class VehicleDetailPage implements OnInit {
     this.closeModal();
   }
 
-  markTaskDone(taskId: string) {
+ async markTaskDone(task: MaintenanceTask) {
     const bike = this.logbook.activeVehicle();
     if (!bike) return;
-    const today = new Date().toISOString().split('T')[0];
-    this.logbook.completeTask(taskId, bike.currentOdometer, today, 0, 'Self / Home Garage', '');
+
+    const alert = await this.alertCtrl.create({
+      header: 'Complete PMS Task?',
+      subHeader: `${task.name} @ ${bike.currentOdometer.toLocaleString()} km`,
+      message: 'This will reset the maintenance interval and add a record to your service history.',
+      cssClass: 'garage-alert',
+      inputs: [
+        {
+          name: 'cost',
+          type: 'number',
+          placeholder: 'Service cost in PHP (optional)',
+        },
+        {
+          name: 'shopName',
+          type: 'text',
+          placeholder: 'Shop name (default: Self / Home Garage)',
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Confirm Done',
+          role: 'confirm',
+          handler: (data) => {
+            const today = new Date().toISOString().split('T')[0];
+            this.logbook.completeTask(
+              task.id,
+              bike.currentOdometer,
+              today,
+              Number(data?.cost || 0),
+              data?.shopName?.trim() || 'Self / Home Garage',
+              ''
+            );
+          },
+        },
+      ],
+    });
+
+    await alert.present();
   }
 
   savePart() {

@@ -45,3 +45,47 @@ ion-modal {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+.garage-alert {
+  --background: #181c24;
+  --backdrop-opacity: 0.7;
+
+  .alert-wrapper {
+    border: 1px solid #2b3240;
+    border-radius: 18px;
+  }
+
+  .alert-title {
+    color: #ffffff;
+    font-weight: 800;
+  }
+
+  .alert-sub-title {
+    color: #e11d48;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .alert-message {
+    color: #94a3b8;
+    font-size: 0.84rem;
+  }
+
+  .alert-input {
+    background: #12151b !important;
+    border: 1px solid #2e3545 !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    padding: 10px 12px !important;
+    margin-top: 6px;
+  }
+
+  .alert-button {
+    font-weight: 700;
+    color: #8e95a5;
+  }
+
+  .alert-button-role-confirm {
+    color: #e11d48;
+  }
+}
