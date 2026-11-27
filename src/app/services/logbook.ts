@@ -1,143 +1,188 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Motorcycle, MaintenanceTask, FuelLog,ServiceRecord, VehiclePart, PmsStatus } from '../models/vehicle.model';
+import {
+  Motorcycle,
+  MaintenanceTask,
+  FuelLog,
+  ServiceRecord,
+  VehiclePart,
+  PmsStatus,
+} from '../models/vehicle.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class Logbook {
-private vehicleSignal = signal<Motorcycle | null>(null);
-private taskSignal = signal<MaintenanceTask[]>([]);
-private fuelLogSignal = signal<FuelLog[]>([]);
-private serviceRecordSignal = signal<ServiceRecord[]>([]);
-private partSignal = signal<VehiclePart[]>([]);
+  private readonly STORAGE_KEY = 'garage_logbook_v2';
 
-readonly vehicle =  this.vehicleSignal.asReadonly();
-readonly tasks =  this.taskSignal.asReadonly();
-readonly fuelLogs = this.fuelLogSignal.asReadonly();
-readonly serviceRecords = this.serviceRecordSignal.asReadonly();
-readonly parts = this.partSignal.asReadonly();
+  private readonly _vehicles = signal<Motorcycle[]>([]);
+  private readonly _selectedVehicleId = signal<string | null>(null);
+  private readonly _tasks = signal<MaintenanceTask[]>([]);
+  private readonly _fuelLogs = signal<FuelLog[]>([]);
+  private readonly _serviceRecords = signal<ServiceRecord[]>([]);
+  private readonly _parts = signal<VehiclePart[]>([]);
 
-private readonly storageKey = 'maintenance_tracker_data';
+  readonly vehicles = this._vehicles.asReadonly();
+  readonly selectedVehicleId = this._selectedVehicleId.asReadonly();
 
-constructor() {
-  this.loadDataFromStorage();
-}
-
-private saveDataToStorage() {
-  const data = {
-    vehicle: this.vehicleSignal(),
-    tasks: this.taskSignal(),
-    fuelLogs: this.fuelLogSignal(),
-    serviceRecords: this.serviceRecordSignal(),
-    parts: this.partSignal(),
-  };
-  localStorage.setItem(this.storageKey, JSON.stringify(data));
-}
-
-private loadDataFromStorage() {
-  const raw = localStorage.getItem(this.storageKey);
-  if (!raw) return; 
-
-  const data = JSON.parse(raw);
-  if (data.vehicle) this.vehicleSignal.set(data.vehicle);
-  if (data.tasks) this.taskSignal.set(data.tasks);
-  if (data.fuelLogs) this.fuelLogSignal.set(data.fuelLogs);
-  if (data.serviceRecords) this.serviceRecordSignal.set(data.serviceRecords);
-  if (data.parts) this.partSignal.set(data.parts);
-}
-setMotorcycle(bike: Motorcycle) {
-  this.vehicleSignal.set(bike);
-  this.saveDataToStorage();
-}
-
-updateOdometer(newOdo: number) {
-  const currentBike = this.vehicleSignal();
-  if (!currentBike) return;
-
-  this.vehicleSignal.set({
-    ...currentBike,
-    currentOdometer: newOdo,
-  });
-  this.saveDataToStorage();
-}
-
-addTask(task: MaintenanceTask) {
-    const currentTasks = this.taskSignal();
-    this.taskSignal.set([...currentTasks, task]);
-    this.saveDataToStorage();
-}
-
-addFuelLog(log: FuelLog) {
-  const currentLogs = this.fuelLogSignal();
-  this.fuelLogSignal.set([log, ...currentLogs]);
-
-  const currentBike = this.vehicleSignal();
-  if (currentBike && log.odometer > currentBike.currentOdometer) {
-    this.updateOdometer(log.odometer);
-  } else {
-    this.saveDataToStorage();
-  }
-}
-
-addServiceRecord(record: ServiceRecord) {
-    const currentRecords = this.serviceRecordSignal();
-    this.serviceRecordSignal.set([...currentRecords, record]);
-    this.saveDataToStorage();
-}
-
-addVehiclePart(part: VehiclePart) {
-    const currentParts = this.partSignal();
-    this.partSignal.set([...currentParts, part]);
-    this.saveDataToStorage();
-}
-
-completeTask(
-  taskId: string,
-  doneOdometer: number,
-  doneDate: string,
-  cost: number,
-  shopName: string,
-  notes: string
-) {
-  const targetTask = this.taskSignal().find(t => t.id === taskId);
-  if (!targetTask) return;
-
-  this.taskSignal.update(tasks =>
-    tasks.map(t =>
-      t.id === taskId
-        ? {
-            ...t,
-            lastDoneOdometer: doneOdometer,
-            lastDoneDate: doneDate,
-            notes: notes || t.notes,
-          }
-        : t
-    )
+  readonly activeVehicle = computed(() =>
+    this._vehicles().find((v) => v.id === this._selectedVehicleId()) ?? null
   );
 
-  this.addServiceRecord({
-    id: crypto.randomUUID(),
-    taskId,
-    title: targetTask.name,
-    date: doneDate,
-    odometer: doneOdometer,
-    cost,
-    shopName,
-    notes,
+  readonly activeTasks = computed(() =>
+    this._tasks().filter((t) => t.vehicleId === this._selectedVehicleId())
+  );
+
+  readonly activeFuelLogs = computed(() =>
+    this._fuelLogs().filter((f) => f.vehicleId === this._selectedVehicleId())
+  );
+
+  readonly activeServiceRecords = computed(() =>
+    this._serviceRecords().filter((r) => r.vehicleId === this._selectedVehicleId())
+  );
+
+  readonly activeParts = computed(() =>
+    this._parts().filter((p) => p.vehicleId === this._selectedVehicleId())
+  );
+
+  readonly latestKmPerLiter = computed(() => {
+    const logs = this.activeFuelLogs();
+    if (logs.length < 2) return null;
+
+    const distance = logs[0].odometer - logs[1].odometer;
+    if (distance <= 0 || logs[0].liters <= 0) return null;
+
+    return (distance / logs[0].liters).toFixed(1);
   });
 
-  const currentBike = this.vehicleSignal();
-  if (currentBike && doneOdometer > currentBike.currentOdometer) {
-    this.updateOdometer(doneOdometer);
+  constructor() {
+    this.loadFromStorage();
   }
-}
 
-getTaskStatus(task: MaintenanceTask): PmsStatus {
-  const currentOdo = this.vehicleSignal()?.currentOdometer ?? task.lastDoneOdometer;
-  const kmDriven = currentOdo - task.lastDoneOdometer;
-  const kmRemaining = task.intervalKm - kmDriven;
 
-  if (kmRemaining <= 0) return 'overdue';
-  if (kmRemaining <= 300) return 'due-soon';
-  return 'ok';
-}
+  selectVehicle(vehicleId: string) {
+    this._selectedVehicleId.set(vehicleId);
+  }
 
+  registerVehicle(bike: Motorcycle) {
+    this._vehicles.update((list) => [bike, ...list]);
+    this.saveToStorage();
+  }
+
+  updateOdometer(vehicleId: string, newOdometer: number) {
+    this._vehicles.update((list) =>
+      list.map((v) =>
+        v.id === vehicleId && newOdometer >= v.currentOdometer
+          ? { ...v, currentOdometer: newOdometer }
+          : v
+      )
+    );
+    this.saveToStorage();
+  }
+
+  getVehicleAlertCount(vehicleId: string): { overdue: number; dueSoon: number } {
+    const vehicle = this._vehicles().find((v) => v.id === vehicleId);
+    if (!vehicle) return { overdue: 0, dueSoon: 0 };
+
+    const vehicleTasks = this._tasks().filter((t) => t.vehicleId === vehicleId);
+    let overdue = 0;
+    let dueSoon = 0;
+
+    for (const task of vehicleTasks) {
+      const status = this.getTaskStatus(task, vehicle.currentOdometer);
+      if (status === 'overdue') overdue++;
+      if (status === 'due-soon') dueSoon++;
+    }
+
+    return { overdue, dueSoon };
+  }
+
+
+  addTask(task: MaintenanceTask) {
+    this._tasks.update((list) => [task, ...list]);
+    this.saveToStorage();
+  }
+
+  getTaskStatus(task: MaintenanceTask, currentOdo?: number): PmsStatus {
+    const odo = currentOdo ?? this.activeVehicle()?.currentOdometer ?? 0;
+    const kmSinceLast = odo - task.lastDoneOdometer;
+    const remainingKm = task.intervalKm - kmSinceLast;
+
+    if (remainingKm <= 0) return 'overdue';
+    if (remainingKm <= Math.max(200, task.intervalKm * 0.15)) return 'due-soon';
+    return 'ok';
+  }
+
+  getRemainingKm(task: MaintenanceTask): number {
+    const odo = this.activeVehicle()?.currentOdometer ?? 0;
+    return task.intervalKm - (odo - task.lastDoneOdometer);
+  }
+
+  completeTask(taskId: string, odometer: number, date: string, cost: number, shopName: string, notes: string) {
+    const task = this._tasks().find((t) => t.id === taskId);
+    if (!task) return;
+
+    this._tasks.update((list) =>
+      list.map((t) =>
+        t.id === taskId ? { ...t, lastDoneOdometer: odometer, lastDoneDate: date } : t
+      )
+    );
+
+    const record: ServiceRecord = {
+      id: crypto.randomUUID(),
+      vehicleId: task.vehicleId,
+      taskId: task.id,
+      title: task.name,
+      date,
+      odometer,
+      cost,
+      shopName: shopName || 'Self / Home Garage',
+      notes,
+    };
+    this._serviceRecords.update((list) => [record, ...list]);
+    this.updateOdometer(task.vehicleId, odometer);
+    this.saveToStorage();
+  }
+
+
+
+  addFuelLog(log: FuelLog) {
+    this._fuelLogs.update((list) => [log, ...list]);
+    this.updateOdometer(log.vehicleId, log.odometer);
+    this.saveToStorage();
+  }
+
+
+
+  addVehiclePart(part: VehiclePart) {
+    this._parts.update((list) => [part, ...list]);
+    this.updateOdometer(part.vehicleId, part.installedOdometer);
+    this.saveToStorage();
+  }
+
+
+  private saveToStorage() {
+    const payload = {
+      vehicles: this._vehicles(),
+      tasks: this._tasks(),
+      fuelLogs: this._fuelLogs(),
+      serviceRecords: this._serviceRecords(),
+      parts: this._parts(),
+    };
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
+  }
+
+  private loadFromStorage() {
+    const raw = localStorage.getItem(this.STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      this._vehicles.set(data.vehicles ?? []);
+      this._tasks.set(data.tasks ?? []);
+      this._fuelLogs.set(data.fuelLogs ?? []);
+      this._serviceRecords.set(data.serviceRecords ?? []);
+      this._parts.set(data.parts ?? []);
+    } catch {
+  
+    }
+  }
 }

@@ -1,2 +1,17 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+ion-content {
+  --background: #0f1115;
+}
+
+ion-toolbar {
+  --background: #0f1115;
+  --border-color: #262a33;
+}
+
+ion-modal {
+  --background: #14171d;
+  --border-radius: 20px 20px 0 0;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
